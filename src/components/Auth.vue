@@ -12,7 +12,12 @@
     </div>
     <br />
     <div>
-      <v-btn id="google" class="ma-2" tile @click="authenticate_google('google')">
+      <v-btn
+        id="google"
+        class="ma-2"
+        tile
+        @click="authenticate_google('google')"
+      >
         <v-icon dark left>mdi-google</v-icon>Sign in with Google
       </v-btn>
     </div>
@@ -34,65 +39,32 @@ export default {
     };
   },
   mixins: [authMixin],
-  methods: {
-    // authenticate_google(provider) {
-    //   this.$auth
-    //     .authenticate("google", { provider: "google-oauth2" })
-    //     .then((response) => {
-    //       let res = response.data.token;
-    //       this.token = res;
-    //       Promise.resolve(res);
-    //       alert("token: " + this.token);
-    //     })
-    //     .catch((err) => {
-    //       console.log("not working");
-    //        Promise.reject(err);
-    //     });
-    // },
-
-    SocialLogin() {
-      const authCode = this.$gAuth.signIn()
-      // const response = this.$http({
-      //   url: 'localhost:8000/db/api/verify/',
-      //   data: ,
-      //   method: "POST",
-      // })
-      //   .then((resp) => {
-      //     console.log(resp.data);
-      //   })
-      //   .catch((err) => {
-      //     console.log({ err: err });
-      //   });
-    },
-
-    handleAuth() {
-      this.authenticate_google("google");
-
-      this.SocialLogin();
-    },
-  },
   // methods: {
-  //   login_google: function() {
-  //     // let prop = "google"
-  //     // let clientId =
-  //     //   "196781649491-1ol69slt2k8jr1gdv2idbpi1lju5nhdo.apps.googleusercontent.com";
-  //     let code =
-  //       "4/3wHL5lJLWquoEeFaikZaIKpOoc8G6v6z4hvLtsOALfr5IjDhNP-ENz_hlgvdRWKaIBysevw3xDLyeNPVX8sD508";
-  //     let provider = "google-oauth2";
-  //     let redirectUri = "http://localhost:8080/";
-  //     this.$store
-  //       .dispatch("auth_google", {
-  //         provider: "google-oauth2",
-  //         code:
-  //           "4/3wHL5lJLWquoEeFaikZaIKpOoc8G6v6z4hvLtsOALfr5IjDhNP-ENz_hlgvdRWKaIBysevw3xDLyeNPVX8sD508",
-  //         clientId:
-  //           "196781649491-1ol69slt2k8jr1gdv2idbpi1lju5nhdo.apps.googleusercontent.com",
-  //         redirectUri: "http://localhost:8080/"
+  //   // authenticate_google(provider) {
+  //   //   const oauth2 = {provider:"google-oauth2"}
+  //   //   this.$store.dispatch('authenticate_google', {provider, oauth2})
+  //   //     .then(() => this.$router.push('/dashboard'))
+  //   //     .catch(err => console.log(err))
+  //   // },
 
-  //       })
-  //       .then(() => this.$router.push("/dashboard"))
-  //       .catch((err) => console.log(err));
-  //   },
+  //   // authenticate_facebook(provider) {
+  //   //   const oauth2 = {provider:"facebook"}
+  //   //   this.$store.dispatch('authenticate_facebook', {provider, oauth2})
+  //   //     .then(() => this.$router.push('/dashboard'))
+  //   //     .catch(err => console.log(err))
+  //   // }
+
+  //     //     .then((response) => {
+  //     //       let res = response.data.token;
+  //     //       this.token = res;
+  //     //       Promise.resolve(res);
+  //     //       alert("token: " + this.token);
+  //     //     })
+  //     //     .catch((err) => {
+  //     //       console.log("not working");
+  //     //        Promise.reject(err);
+  //     //     });
+  //     // },
   // },
 };
 </script>

@@ -2,43 +2,56 @@ import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
 
+
 Vue.use(Vuex);
 
 export const authMixin = {
   methods: {
-     /* eslint-disable no-console */
-    authenticate_google: function(provider) {
+    /* eslint-disable no-console */
+    authenticate_google: function (provider) {
       this.$auth
-        .authenticate("google", { provider: "google-oauth2" })
+        .authenticate(provider, { provider: "google-oauth2" })
         .then((resp) => {
+          //console.log(resp);
           const token = resp.data.token;
           const refresh = resp.data.refresh;
+          const user = resp.data.email;
           localStorage.setItem("token", token);
           localStorage.setItem("refresh", refresh);
+          localStorage.setItem("user", user);
           // Add the following line:
           axios.defaults.headers.common["Authorization"] = token;
+          this.$store.commit("auth_success", token, refresh, user);
         })
-        .catch(function(error) {
+        .then(() => {
+          this.$router.push('/dashboard');
+        })
+        .catch(function (error) {
           console.log(error);
         });
     },
-    authenticate_facebook: function(provider) {
+    authenticate_facebook: function (provider) {
       this.$auth
-        .authenticate("facebook", { provider: "facebook" })
-        .then(function(resp) {
+        .authenticate(provider, { provider: "facebook" })
+        .then(function (resp) {
           const token = resp.data.token;
           const refresh = resp.data.refresh;
-          console
+          const user = resp.data.email;
           localStorage.setItem("token", token);
           localStorage.setItem("refresh", refresh);
+          localStorage.setItem("user", user);
           // Add the following line:
           axios.defaults.headers.common["Authorization"] = token;
+          this.$store.commit("auth_success", token, refresh, user);
         })
-        .catch(function(error) {
+        .then(() => {
+          this.$router.push('/dashboard');
+        })
+        .catch(function (error) {
           console.log(error);
         });
     },
-     /* eslint-enable no-console */
+    /* eslint-enable no-console */
   },
 };
 
@@ -48,15 +61,17 @@ export default new Vuex.Store({
     status: "",
     token: localStorage.getItem("access") || "",
     refresh: localStorage.getItem("refresh") || "",
+    user: ""
   },
   mutations: {
     auth_request(state) {
       state.status = "loading";
     },
-    auth_success(state, token, refresh) {
+    auth_success(state, token, refresh, user) {
       state.status = "success";
       state.token = token;
       state.refresh = refresh;
+      state.user = user
     },
     auth_error(state) {
       state.status = "error";
@@ -65,6 +80,7 @@ export default new Vuex.Store({
       state.status = "";
       state.token = "";
       state.refresh = "";
+      state.user = "";
     },
   },
   actions: {
@@ -79,11 +95,12 @@ export default new Vuex.Store({
           .then((resp) => {
             const token = resp.data.access;
             const refresh = resp.data.refresh;
+            const user = resp.data.user
             localStorage.setItem("token", token);
             localStorage.setItem("refresh", refresh);
             // Add the following line:
             axios.defaults.headers.common["Authorization"] = token;
-            commit("auth_success", token, refresh);
+            commit("auth_success", token, refresh, user);
             resolve(resp);
           })
           .catch((err) => {
@@ -94,33 +111,6 @@ export default new Vuex.Store({
           });
       });
     },
-    auth_google({commit}, {provider, code, clientId, redirectUri}){
-      return new Promise((resolve, reject) => {
-        commit("auth_request");
-        axios({
-          url: "http://localhost:8000/api/login/social/jwt-pair-user/",
-          data: { provider, code, clientId, redirectUri},
-          method: "POST",
-        })
-          .then((resp) => {
-            const token = resp.data.access;
-            const refresh = resp.data.refresh;
-            localStorage.setItem("token", token);
-            localStorage.setItem("refresh", refresh);
-            // Add the following line:
-            axios.defaults.headers.common["Authorization"] = token;
-            commit("auth_success", token, refresh);
-            resolve(resp);
-          })
-          .catch((err) => {
-            commit("auth_error");
-            localStorage.removeItem("token");
-            localStorage.removeItem("refresh");
-            reject(err);
-          });
-      });
-   },
-
     // social_login({ commit }, data) {
     //   return new Promise((resolve, reject) => {
     //     commit("auth_request");
@@ -157,21 +147,22 @@ export default new Vuex.Store({
           url: "http://localhost:8000/db/api/client_registration/",
           data: user,
           method: "POST",
-        });
-        //.then(resp => console.log(resp));
+        })
+          .then(resp => {
 
-        //   const token = resp.data.token
-        //   const user = resp.data.user
-        //   localStorage.setItem('token', token)
-        //   // Add the following line:
-        //   axios.defaults.headers.common['Authorization'] = token
-        //   commit('auth_success', token, user)
-        //   resolve(resp)
-        // .catch(err => {
-        //   commit('auth_error', err)
-        //   localStorage.removeItem('token')
-        //   reject(err)
-        // })
+            const token = resp.data.token
+            const user = resp.data.user
+            localStorage.setItem('token', token)
+            // Add the following line:
+            axios.defaults.headers.common['Authorization'] = token
+            commit('auth_success', token, user)
+            resolve(resp)
+          })
+          .catch(err => {
+            commit('auth_error', err)
+            localStorage.removeItem('token')
+            reject(err)
+          })
       });
     },
     logout({ commit }) {
@@ -179,6 +170,8 @@ export default new Vuex.Store({
         commit("logout");
         localStorage.removeItem("token");
         localStorage.removeItem("refresh");
+        localStorage.removeItem("user");
+        localStorage.removeItem("vue-authenticate.vueauth_token");
         delete axios.defaults.headers.common["Authorization"];
         resolve();
       });

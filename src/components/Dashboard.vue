@@ -53,6 +53,8 @@ export default {
         this.$router.push("/login");
       });
     },
+    //verifica se o token expirou
+    
     created: function() {
       this.$http.interceptors.response.use(undefined, function(err) {
         return new Promise(function(resolve, reject) {
